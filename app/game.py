@@ -34,4 +34,4 @@ def generate_letters():
 
     return chosen
 
-# def buttonClick(letter):
+
