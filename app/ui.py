@@ -1,6 +1,5 @@
 import customtkinter as ctk
-from app.game import generate_letters
-
+from app.game import generate_letters, is_valid_word, update_score
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -23,9 +22,16 @@ class App(ctk.CTk):
 
         self.currentWord = ""
         self.letters = generate_letters()
+        self.score = 0
+
+        self.scoreFrame = ctk.CTkFrame(self, fg_color="transparent")
+        self.scoreFrame.grid(row = 1, column = 0, padx = 20, pady=0, sticky='ew')
+        self.scoreFrame.columnconfigure(0,weight=1)
+        self.scoreLabel = ctk.CTkLabel(self.scoreFrame, text = f"Score: {self.score}", font=("NYTFranklin",18), text_color="white")
+        self.scoreLabel.grid(row = 0, column = 0, padx = 10, pady = 0)
 
         self.outputFrame = ctk.CTkFrame(self)
-        self.outputFrame.grid(row = 1, column = 0, padx = 20, pady = 10, sticky='ew')
+        self.outputFrame.grid(row = 2, column = 0, padx = 20, pady = 10, sticky='ew')
         self.outputFrame.columnconfigure(0, weight=1)
         self.outputLabel = ctk.CTkLabel(self.outputFrame, text = self.currentWord, font=("NYTFranklin",36), text_color="white")
         self.outputLabel.grid(row = 0, column = 0, padx = 10, pady = 10)
@@ -36,7 +42,7 @@ class App(ctk.CTk):
             height=260,
             fg_color="transparent"
         )
-        self.letterFrame.grid(row=2, column=0, pady=20)
+        self.letterFrame.grid(row=3, column=0, pady=20)
 
         positions = [
             (70, 30),     # top-left
@@ -58,6 +64,18 @@ class App(ctk.CTk):
             self.currentWord = ""
             self.outputLabel.configure(text=self.currentWord)
 
+        def submitButtonClick():
+            if is_valid_word(self.currentWord, self.letters, self.letters[3]):
+                scoreAdded = update_score(self.currentWord)
+                self.score += scoreAdded
+                self.scoreLabel.configure(text=f"Score: {self.score}")
+                if len(set(self.currentWord)) == 7:
+                    self.outputLabel.configure(text="Pangram!!")
+                else:
+                    self.outputLabel.configure(text="Valid")
+            else:
+                self.outputLabel.configure(text="Invalid!")
+            self.currentWord = ""        
 
         for i in range(len(self.letters)):
             x, y = positions[i]
@@ -78,9 +96,9 @@ class App(ctk.CTk):
         self.otherFrame = ctk.CTkFrame(self, height=50)
         self.otherFrame.columnconfigure(0, weight=1)
         self.otherFrame.columnconfigure(1, weight=1)
-        self.otherFrame.grid(row=3, column = 0, padx = 0, pady = 0, sticky="ew")
+        self.otherFrame.grid(row=4, column = 0, padx = 0, pady = 0, sticky="ew")
 
         self.resetButton = ctk.CTkButton(self.otherFrame, text="Reset", command=resetButtonClick)
         self.resetButton.grid(row=0, column=0, padx=10, pady=10)
-        self.submitButton = ctk.CTkButton(self.otherFrame, text="Submit")
+        self.submitButton = ctk.CTkButton(self.otherFrame, text="Submit", command=submitButtonClick)
         self.submitButton.grid(row=0, column=1, padx=10, pady=10)
